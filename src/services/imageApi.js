@@ -1,6 +1,6 @@
 const baseUrl = "https://pixabay.com/api/";
 
-const fetchImages = searchQuery => {
+const fetchImages = (searchQuery, page = 1) => {
   const options = {
     method: "GET",
     headers: {
@@ -8,7 +8,7 @@ const fetchImages = searchQuery => {
       Accept: "application/json"
     }
   };
-  const requestParameter = `?q=${searchQuery}&page=1&key=14591029-b9abf563857b66fab696140db&image_type=photo&orientation=horizontal&per_page=12`;
+  const requestParameter = `?q=${searchQuery}&page=${page}&key=14591029-b9abf563857b66fab696140db&image_type=photo&orientation=horizontal&per_page=12`;
 
   return fetch(baseUrl + requestParameter, { options }).then(response =>
     response.json().then(data => data.hits)

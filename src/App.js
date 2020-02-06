@@ -3,50 +3,90 @@ import React, { Component } from "react";
 import Searchbar from "./Components/Searchbar/Searchbar";
 import ImageGallery from "./Components/ImageGallery/ImageGallery";
 import Button from "./Components/Button/Button";
+import Spiner from "./Components/Loader/Loader";
+import Modal from "./Components/Modal/Modal";
 
 import { fetchImages } from "./services/imageApi";
 
 export default class App extends Component {
   state = {
     images: [],
+    loading: false,
+    error: null,
+    largeImg: null,
     searchQuery: " ",
-    page: 0
+    page: 1
   };
 
-  componentDidMount() {
-  };
-
-  componentDidUpdate(prevState) {
+  componentDidUpdate(prevProps, prevState) {
     const prevQuery = prevState.searchQuery;
     const nextQuery = this.state.searchQuery;
 
-    console.log(prevQuery);
-    console.log(nextQuery);
+    const currentPage = this.state.page;
 
     if (prevQuery !== nextQuery) {
-      this.fetchImagesByQuery(nextQuery);
+      this.fetchImagesByQuery();
     }
-  };
+    if (currentPage > 2) {
+      this.scroller();
+    }
+  }
 
-  fetchImagesByQuery = query => {
-    fetchImages(query)
+  fetchImagesByQuery = () => {
+    const { searchQuery, page } = this.state;
+
+    this.setState({ loading: true });
+
+    fetchImages(searchQuery, page)
       .then(images =>
-        this.setState(state => ({ images, page: state.page + 1 }))
+        this.setState(state => ({
+          images: [...state.images, ...images],
+          page: state.page + 1
+        }))
       )
-      .catch(err => this.setState({ err }));
+      .then(() => this.scroller)
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ loading: false }));
   };
 
   handleSearchFormSubmit = query => {
-    this.setState({ searchQuery: query });
+    this.setState({ searchQuery: query, page: 1, images: [] });
+  };
+
+  scroller = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth"
+    });
+  };
+
+  setLargeImage = url => {
+    this.setState({ largeImg: url });
+  };
+
+  closeModal = () => {
+    this.setState({ largeImg: null });
   };
 
   render() {
-    const { images } = this.state;
+    const { images, loading, error, largeImg } = this.state;
+
     return (
       <>
         <Searchbar onSubmit={this.handleSearchFormSubmit} />
-        {images.length > 0 && <ImageGallery images={images} />}
-        {images.length > 0 && <Button />}
+        {error && <p>Whoops, something went wrong: {error.massage}</p>}
+        {images.length > 0 && (
+          <ImageGallery images={images} onLargeImage={this.setLargeImage} />
+        )}
+        {loading && <Spiner />}
+        {images.length > 0 && !loading && (
+          <Button clickButton={this.fetchImagesByQuery} />
+        )}
+        {largeImg && (
+          <Modal onCloseModal={this.closeModal}>
+            <img src={largeImg} alt="" />
+          </Modal>
+        )}
       </>
     );
   }
