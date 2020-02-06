@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import styles from "./modal.module.css";
+import styles from "../../styles.module.css";
 
 export default class Modal extends Component {
   componentDidMount() {

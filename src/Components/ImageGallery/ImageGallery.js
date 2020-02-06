@@ -20,10 +20,11 @@ const ImageGallery = ({ images, onLargeImage }) => (
 
 ImageGallery.propTypes = {
   images: PropTypes.arrayOf(
-    PropTypes.exact({
+    PropTypes.shape({
       webformatURL: PropTypes.string.isRequired,
       id: PropTypes.number.isRequired,
-      tags: PropTypes.string.isRequired
+      tags: PropTypes.string.isRequired,
+      largeImageURL: PropTypes.string.isRequired
     })
   ),
   onLargeImage: PropTypes.func.isRequired
