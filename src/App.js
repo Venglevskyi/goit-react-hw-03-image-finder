@@ -22,12 +22,13 @@ export default class App extends Component {
     const prevQuery = prevState.searchQuery;
     const nextQuery = this.state.searchQuery;
 
-    const currentPage = this.state.page;
+    const prevImage = prevState.images;
+    const nextImage = this.state.images;
 
     if (prevQuery !== nextQuery) {
       this.fetchImagesByQuery();
     }
-    if (currentPage > 2) {
+    if (prevImage !== nextImage && prevImage.length !== 0) {
       this.scroller();
     }
   }
@@ -44,7 +45,6 @@ export default class App extends Component {
           page: state.page + 1
         }))
       )
-      .then(() => this.scroller)
       .catch(error => this.setState({ error }))
       .finally(() => this.setState({ loading: false }));
   };
